@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"database/sql"
+	"os"
 )
 
 func main() {
@@ -20,18 +21,22 @@ func main() {
 	m, err := cmd.NewService()
 	if err != nil {
 		panic(err)
+		os.Exit(1)
 	}
 
 	if err := m.Start(); err != nil {
 		panic(err)
+		os.Exit(1)
 	}
 
 	m.AddTag("custom", CustomHandler)
 	if executed, err := m.Execute(cmd.MigrationOption(cmdMigrate), cmdNumber); err != nil {
 		panic(err)
+		os.Exit(1)
 	} else {
 		fmt.Printf("EXECUTED: %d", executed)
 	}
+	os.Exit(0)
 }
 
 func CustomHandler(option cmd.MigrationOption, tx *sql.Tx, data string) error {
