@@ -28,6 +28,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER trigger_migration_history
+DROP TRIGGER IF EXISTS trigger_migration_history ON migration;
+CREATE TRIGGER trigger_migration_history
 AFTER INSERT OR UPDATE OR DELETE ON migration
     FOR EACH ROW EXECUTE PROCEDURE function_migration_history();

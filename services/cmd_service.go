@@ -84,6 +84,9 @@ func (service *CmdService) Execute(option MigrationOption, number int) (int, err
 	service.logger.Infof("executing migration with option '-%s %s'", CmdMigrate, option)
 
 	// setup
+	if err := service.setup(); err != nil {
+		return 0, err
+	}
 
 	// load
 	executed, toexecute, err := service.load()
@@ -102,6 +105,7 @@ func (service *CmdService) Execute(option MigrationOption, number int) (int, err
 
 // setup ...
 func (service *CmdService) setup() error {
+	service.logger.Info("executing setup of migration table")
 
 	conn, err := service.config.Db.Connect()
 	if err != nil {
@@ -124,12 +128,7 @@ func (service *CmdService) setup() error {
 		}
 	}()
 
-	file, err := ReadFile("/schema/db/postgres/00_schema", nil)
-	if err != nil {
-		return err
-	}
-
-	return service.tag[string(FileTagMigrateUp)](OptionUp, tx, string(file))
+	return service.tag[string(FileTagMigrateUp)](OptionUp, tx, CREATE_MIGRATION_TABLES)
 }
 
 // load ...
