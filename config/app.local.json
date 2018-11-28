@@ -4,7 +4,7 @@
     "path": "schema/db/postgres/example",
     "db": {
       "driver": "postgres",
-      "datasource": "postgres://postgres:postgres@localhost:5432?sslmode=disable"
+      "datasource": "postgres://postgres:postgres@localhost:5432?sslmode=disable&search_path=public"
     },
     "log": {
       "level": "info"

@@ -9,7 +9,7 @@ import (
 )
 
 type WebService struct {
-	config        *WatcherConfig
+	config        *MigrationConfig
 	isLogExternal bool
 	pm            *manager.Manager
 	mux           sync.Mutex
@@ -20,7 +20,7 @@ type WebService struct {
 func NewWebService(options ...WebServiceOption) (*WebService, error) {
 	service := &WebService{
 		pm:     manager.NewManager(manager.WithRunInBackground(false)),
-		logger: logger.NewLogDefault("services-cmd", logger.InfoLevel),
+		logger: logger.NewLogDefault("migration", logger.InfoLevel),
 	}
 
 	if service.isLogExternal {

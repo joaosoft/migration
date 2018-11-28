@@ -13,7 +13,7 @@ import (
 )
 
 type CmdService struct {
-	config        *WatcherConfig
+	config        *MigrationConfig
 	interactor    *Interactor
 	tag           map[string]Handler
 	isLogExternal bool
@@ -25,7 +25,7 @@ type CmdService struct {
 func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 	service := &CmdService{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
-		logger: logger.NewLogDefault("services-cmd", logger.InfoLevel),
+		logger: logger.NewLogDefault("migration", logger.InfoLevel),
 		tag: map[string]Handler{
 			string(FileTagMigrateUp):   MigrationHandler,
 			string(FileTagMigrateDown): MigrationHandler,
@@ -83,6 +83,8 @@ func (service *CmdService) AddTag(name string, handler Handler) error {
 func (service *CmdService) Execute(option MigrationOption, number int) (int, error) {
 	service.logger.Infof("executing migration with option '-%s %s'", CmdMigrate, option)
 
+	// setup
+
 	// load
 	executed, toexecute, err := service.load()
 	if err != nil {
@@ -96,6 +98,38 @@ func (service *CmdService) Execute(option MigrationOption, number int) (int, err
 
 	// process
 	return service.process(option, number, executed, toexecute)
+}
+
+// setup ...
+func (service *CmdService) setup() error {
+
+	conn, err := service.config.Db.Connect()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	tx, err := conn.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if tx != nil {
+			if err != nil {
+				tx.Rollback()
+			} else {
+				tx.Commit()
+			}
+		}
+	}()
+
+	file, err := ReadFile("/schema/db/postgres/00_schema", nil)
+	if err != nil {
+		return err
+	}
+
+	return service.tag[string(FileTagMigrateUp)](OptionUp, tx, string(file))
 }
 
 // load ...

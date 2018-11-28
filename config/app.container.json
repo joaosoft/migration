@@ -4,7 +4,7 @@
     "path": "/",
     "db": {
       "driver": "postgres",
-      "datasource": "postgres://user:password@localhost:5432?sslmode=disable"
+      "datasource": "postgres://user:password@localhost:5432?sslmode=disable&search_path=public"
     },
     "log": {
       "level": "info"
