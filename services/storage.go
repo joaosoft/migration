@@ -27,7 +27,7 @@ func (storage *StoragePostgres) GetMigration(idMigration string) (*Migration, er
 	    SELECT
 		    "user",
 			executed_at
-		FROM migration.migration
+		FROM migration
 		WHERE id_migration = $1
 		ORDER BY id_migration ASC
 	`, idMigration)
@@ -53,7 +53,7 @@ func (storage *StoragePostgres) GetMigrations(values map[string][]string) (ListM
 			id_migration,
 		    "user",
 			executed_at
-		FROM migration.migration
+		FROM migration
 	`
 
 	index := 1
@@ -103,7 +103,7 @@ func (storage *StoragePostgres) GetMigrations(values map[string][]string) (ListM
 
 func (storage *StoragePostgres) CreateMigration(newMigration *Migration) error {
 	if _, err := storage.conn.Get().Exec(`
-		INSERT INTO migration.migration(
+		INSERT INTO migration(
 			id_migration)
 		VALUES($1)
 	`,
@@ -117,7 +117,7 @@ func (storage *StoragePostgres) CreateMigration(newMigration *Migration) error {
 func (storage *StoragePostgres) DeleteMigration(idMigration string) error {
 	if _, err := storage.conn.Get().Exec(`
 	    DELETE 
-		FROM migration.migration
+		FROM migration
 		WHERE id_migration = $1
 	`, idMigration); err != nil {
 		return errors.New("0", err)
@@ -128,7 +128,7 @@ func (storage *StoragePostgres) DeleteMigration(idMigration string) error {
 
 func (storage *StoragePostgres) DeleteMigrations() error {
 	if _, err := storage.conn.Get().Exec(`
-	    DELETE FROM migration.migration`); err != nil {
+	    DELETE FROM migration`); err != nil {
 		return errors.New("0", err)
 	}
 
