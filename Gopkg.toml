@@ -43,16 +43,16 @@
 
 [[constraint]]
   name = "github.com/labstack/echo"
-  version = "3.3.5"
+  version = "3.3.8"
 
 [[constraint]]
   name = "github.com/labstack/gommon"
-  version = "0.2.6"
-
-[[override]]
-  name = "github.com/satori/go.uuid"
-  branch = "master"
+  version = "0.2.8"
 
 [prune]
   go-tests = true
   unused-packages = true
+
+[[override]]
+  name = "github.com/satori/go.uuid"
+  branch = "master"
