@@ -1,4 +1,4 @@
-package web
+package services
 
 type ErrorResponse struct {
 	Code    int    `json:"code,omitempty"`

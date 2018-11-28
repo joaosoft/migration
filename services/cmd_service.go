@@ -1,23 +1,20 @@
-package cmd
+package services
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
-
-	"migration/services"
-
-	"sort"
 
 	"github.com/joaosoft/logger"
 	"github.com/joaosoft/manager"
 )
 
 type CmdService struct {
-	config        *services.WatcherConfig
-	interactor    *services.Interactor
+	config        *WatcherConfig
+	interactor    *Interactor
 	tag           map[string]Handler
 	isLogExternal bool
 	pm            *manager.Manager
@@ -25,7 +22,7 @@ type CmdService struct {
 	logger        logger.ILogger
 }
 
-func NewService(options ...CmdServiceOption) (*CmdService, error) {
+func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 	service := &CmdService{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
 		logger: logger.NewLogDefault("services-cmd", logger.InfoLevel),
@@ -40,8 +37,8 @@ func NewService(options ...CmdServiceOption) (*CmdService, error) {
 	}
 
 	// load configuration File
-	appConfig := &services.AppConfig{}
-	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", services.GetEnv()), appConfig); err != nil {
+	appConfig := &AppConfig{}
+	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
 		service.logger.Error(err.Error())
 	} else {
 		service.pm.AddConfig("config_app", simpleConfig)
@@ -63,7 +60,7 @@ func NewService(options ...CmdServiceOption) (*CmdService, error) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	simpleDB.Start(wg)
-	service.interactor = services.NewInteractor(service.logger, services.NewStoragePostgres(service.logger, simpleDB))
+	service.interactor = NewInteractor(service.logger, NewStoragePostgres(service.logger, simpleDB))
 
 	return service, nil
 }
@@ -235,7 +232,7 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 
 		if option == OptionUp {
 			if err == nil {
-				if err = service.interactor.CreateMigration(&services.Migration{IdMigration: migration}); err != nil {
+				if err = service.interactor.CreateMigration(&Migration{IdMigration: migration}); err != nil {
 					return 0, service.logger.Error("error adding migration to database").ToError()
 				}
 			}
@@ -258,7 +255,7 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 
 func (service *CmdService) loadRunningTags(option MigrationOption, file string) (migrationTags map[string]string, customTags map[string]string, err error) {
 	dir, _ := os.Getwd()
-	lines, err := services.ReadFileLines(fmt.Sprintf("%s/%s/%s", dir, service.config.Path, file))
+	lines, err := ReadFileLines(fmt.Sprintf("%s/%s/%s", dir, service.config.Path, file))
 	if err != nil {
 		return nil, nil, err
 	}

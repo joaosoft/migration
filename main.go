@@ -1,12 +1,10 @@
 package main
 
 import (
-	"flag"
-	"migration/services/cmd"
-
-	"fmt"
-
 	"database/sql"
+	"flag"
+	"fmt"
+	"migration/services"
 	"os"
 )
 
@@ -14,11 +12,11 @@ func main() {
 	var cmdMigrate string
 	var cmdNumber int
 
-	flag.StringVar(&cmdMigrate, string(cmd.CmdMigrate), string(cmd.OptionUp), "Runs the specified command. Valid options are: `"+string(cmd.OptionUp)+"`, `"+string(cmd.OptionDown)+"`.")
-	flag.IntVar(&cmdNumber, string(cmd.CmdNumber), 0, "Runs the specified command.")
+	flag.StringVar(&cmdMigrate, string(services.CmdMigrate), string(services.OptionUp), "Runs the specified command. Valid options are: `"+string(services.OptionUp)+"`, `"+string(services.OptionDown)+"`.")
+	flag.IntVar(&cmdNumber, string(services.CmdNumber), 0, "Runs the specified command.")
 	flag.Parse()
 
-	m, err := cmd.NewService()
+	m, err := services.NewCmdService()
 	if err != nil {
 		panic(err)
 		os.Exit(1)
@@ -30,7 +28,7 @@ func main() {
 	}
 
 	m.AddTag("custom", CustomHandler)
-	if executed, err := m.Execute(cmd.MigrationOption(cmdMigrate), cmdNumber); err != nil {
+	if executed, err := m.Execute(services.MigrationOption(cmdMigrate), cmdNumber); err != nil {
 		panic(err)
 		os.Exit(1)
 	} else {
@@ -39,7 +37,7 @@ func main() {
 	os.Exit(0)
 }
 
-func CustomHandler(option cmd.MigrationOption, tx *sql.Tx, data string) error {
+func CustomHandler(option services.MigrationOption, tx *sql.Tx, data string) error {
 	fmt.Printf("\nexecuting with option '%s' and data '%s", option, data)
 	return nil
 }

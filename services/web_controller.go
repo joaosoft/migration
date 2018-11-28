@@ -1,7 +1,6 @@
-package web
+package services
 
 import (
-	"migration/services"
 	"net/http"
 
 	"github.com/joaosoft/errors"
@@ -12,10 +11,10 @@ import (
 
 type Controller struct {
 	logger     logger.ILogger
-	interactor *services.Interactor
+	interactor *Interactor
 }
 
-func NewController(logger logger.ILogger, interactor *services.Interactor) *Controller {
+func NewController(logger logger.ILogger, interactor *Interactor) *Controller {
 	return &Controller{
 		logger:     logger,
 		interactor: interactor,
@@ -27,7 +26,7 @@ func (controller *Controller) GetMigrationHandler(ctx echo.Context) error {
 		IdMigration: ctx.Param("id"),
 	}
 
-	if errs := validator.Validate(request); !errs.IsEmpty() {
+	if errs := validator.Validate(request); len(errs) > 0 {
 		return ctx.JSON(http.StatusBadRequest, errs)
 	}
 
@@ -58,14 +57,14 @@ func (controller *Controller) CreateMigrationHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Code: http.StatusBadRequest, Message: err.Error()})
 	}
 
-	if errs := validator.Validate(request.Body); !errs.IsEmpty() {
+	if errs := validator.Validate(request.Body); len(errs) > 0 {
 		newErr := errors.New("0", errs)
 		controller.logger.WithFields(map[string]interface{}{"error": newErr.Error(), "cause": newErr.Cause()}).
 			Error("error when validating body request").ToError()
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Code: http.StatusBadRequest, Message: newErr.Error(), Cause: newErr.Cause()})
 	}
 
-	newMigration := services.Migration{
+	newMigration := Migration{
 		IdMigration: request.Body.IdMigration,
 	}
 	if err := controller.interactor.CreateMigration(&newMigration); err != nil {
@@ -83,7 +82,7 @@ func (controller *Controller) DeleteMigrationHandler(ctx echo.Context) error {
 		IdMigration: ctx.Param("id"),
 	}
 
-	if errs := validator.Validate(request); !errs.IsEmpty() {
+	if errs := validator.Validate(request); len(errs) > 0 {
 		newErr := errors.New("0", errs)
 		controller.logger.WithFields(map[string]interface{}{"error": newErr.Error(), "cause": newErr.Cause()}).
 			Error("error when validating body request").ToError()

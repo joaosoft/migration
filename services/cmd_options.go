@@ -1,8 +1,6 @@
-package cmd
+package services
 
 import (
-	"migration/services"
-
 	"github.com/joaosoft/logger"
 	"github.com/joaosoft/manager"
 )
@@ -17,30 +15,30 @@ func (service *CmdService) Reconfigure(options ...CmdServiceOption) {
 	}
 }
 
-// WithConfiguration ...
-func WithConfiguration(config *services.WatcherConfig) CmdServiceOption {
+// WithCmdConfiguration ...
+func WithCmdConfiguration(config *WatcherConfig) CmdServiceOption {
 	return func(client *CmdService) {
 		client.config = config
 	}
 }
 
-// WithLogger ...
-func WithLogger(logger logger.ILogger) CmdServiceOption {
+// WithCmdLogger ...
+func WithCmdLogger(logger logger.ILogger) CmdServiceOption {
 	return func(service *CmdService) {
 		service.logger = logger
 		service.isLogExternal = true
 	}
 }
 
-// WithLogLevel ...
-func WithLogLevel(level logger.Level) CmdServiceOption {
+// WithCmdLogLevel ...
+func WithCmdLogLevel(level logger.Level) CmdServiceOption {
 	return func(service *CmdService) {
 		service.logger.SetLevel(level)
 	}
 }
 
-// WithManager ...
-func WithManager(mgr *manager.Manager) CmdServiceOption {
+// WithCmdManager ...
+func WithCmdManager(mgr *manager.Manager) CmdServiceOption {
 	return func(service *CmdService) {
 		service.pm = mgr
 	}

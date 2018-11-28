@@ -1,11 +1,11 @@
 package main
 
 import (
-	"migration/services/web"
+	"migration/services"
 )
 
 func main() {
-	m, err := web.NewService()
+	m, err := services.NewWebService()
 	if err != nil {
 		panic(err)
 	}

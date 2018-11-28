@@ -1,26 +1,23 @@
-package web
+package services
 
 import (
 	"fmt"
-
 	"sync"
-
-	"migration/services"
 
 	"github.com/joaosoft/logger"
 	"github.com/joaosoft/manager"
 )
 
 type WebService struct {
-	config        *services.WatcherConfig
+	config        *WatcherConfig
 	isLogExternal bool
 	pm            *manager.Manager
 	mux           sync.Mutex
 	logger        logger.ILogger
 }
 
-// NewService ...
-func NewService(options ...WebServiceOption) (*WebService, error) {
+// NewWebService ...
+func NewWebService(options ...WebServiceOption) (*WebService, error) {
 	service := &WebService{
 		pm:     manager.NewManager(manager.WithRunInBackground(false)),
 		logger: logger.NewLogDefault("services-cmd", logger.InfoLevel),
@@ -31,8 +28,8 @@ func NewService(options ...WebServiceOption) (*WebService, error) {
 	}
 
 	// load configuration File
-	appConfig := &services.AppConfig{}
-	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", services.GetEnv()), appConfig); err != nil {
+	appConfig := &AppConfig{}
+	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
 		service.logger.Error(err.Error())
 	} else {
 		service.pm.AddConfig("config_app", simpleConfig)
@@ -46,7 +43,7 @@ func NewService(options ...WebServiceOption) (*WebService, error) {
 	service.Reconfigure(options...)
 
 	if service.config.Host == "" {
-		service.config.Host = services.DefaultURL
+		service.config.Host = DefaultURL
 	}
 
 	simpleDB := manager.NewSimpleDB(&appConfig.Migration.Db)
@@ -56,7 +53,7 @@ func NewService(options ...WebServiceOption) (*WebService, error) {
 	}
 
 	web := manager.NewSimpleWebEcho(service.config.Host)
-	controller := NewController(service.logger, services.NewInteractor(service.logger, services.NewStoragePostgres(service.logger, simpleDB)))
+	controller := NewController(service.logger, NewInteractor(service.logger, NewStoragePostgres(service.logger, simpleDB)))
 	controller.RegisterRoutes(web)
 
 	service.pm.AddWeb("api_web", web)

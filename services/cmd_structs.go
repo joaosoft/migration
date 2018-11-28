@@ -1,6 +1,8 @@
-package cmd
+package services
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type Tag string
 type MigrationCommand string

@@ -1,8 +1,6 @@
-package web
+package services
 
 import (
-	"migration/services"
-
 	"github.com/joaosoft/logger"
 	"github.com/joaosoft/manager"
 )
@@ -17,15 +15,15 @@ func (service *WebService) Reconfigure(options ...WebServiceOption) {
 	}
 }
 
-// WithConfiguration ...
-func WithConfiguration(config *services.WatcherConfig) WebServiceOption {
+// WithWebConfiguration ...
+func WithWebConfiguration(config *WatcherConfig) WebServiceOption {
 	return func(client *WebService) {
 		client.config = config
 	}
 }
 
 // WithLogger ...
-func WithLogger(logger logger.ILogger) WebServiceOption {
+func WithWebLogger(logger logger.ILogger) WebServiceOption {
 	return func(service *WebService) {
 		service.logger = logger
 		service.isLogExternal = true
@@ -33,14 +31,14 @@ func WithLogger(logger logger.ILogger) WebServiceOption {
 }
 
 // WithLogLevel ...
-func WithLogLevel(level logger.Level) WebServiceOption {
+func WithWebLogLevel(level logger.Level) WebServiceOption {
 	return func(service *WebService) {
 		service.logger.SetLevel(level)
 	}
 }
 
 // WithManager ...
-func WithManager(mgr *manager.Manager) WebServiceOption {
+func WithWebManager(mgr *manager.Manager) WebServiceOption {
 	return func(service *WebService) {
 		service.pm = mgr
 	}
