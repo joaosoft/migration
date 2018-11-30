@@ -237,16 +237,6 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 			return 0, err
 		}
 
-		defer func() {
-			if tx != nil {
-				if err != nil {
-					tx.Rollback()
-				} else {
-					tx.Commit()
-				}
-			}
-		}()
-
 		// execute migration handlers
 		for key, value := range migrationTags {
 			if err = service.tag[key](option, tx, value); err != nil {
@@ -267,6 +257,7 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 			if err == nil {
 				if err = service.interactor.CreateMigration(&Migration{IdMigration: migration}); err != nil {
 					service.logger.Error("error adding migration to database")
+					tx.Rollback()
 					return 0, err
 				}
 			}
@@ -274,6 +265,7 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 			if err == nil {
 				if err = service.interactor.DeleteMigration(migration); err != nil {
 					service.logger.Error("error deleting migration to database")
+					tx.Rollback()
 					return 0, err
 				}
 			}
@@ -281,6 +273,12 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 
 		if err != nil {
 			service.logger.Errorf("error executing the migration %s", migration)
+			tx.Rollback()
+			return 0, err
+		}
+
+		if err = tx.Commit(); err != nil {
+			service.logger.Error("error executing commit of transaction")
 			return 0, err
 		}
 	}
