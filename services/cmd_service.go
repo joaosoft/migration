@@ -118,17 +118,14 @@ func (service *CmdService) setup() error {
 		return err
 	}
 
-	defer func() {
-		if tx != nil {
-			if err != nil {
-				tx.Rollback()
-			} else {
-				tx.Commit()
-			}
-		}
-	}()
+	service.tag[string(FileTagMigrateUp)](OptionUp, tx, CREATE_MIGRATION_TABLES)
 
-	return service.tag[string(FileTagMigrateUp)](OptionUp, tx, CREATE_MIGRATION_TABLES)
+	if err = tx.Commit(); err != nil {
+		service.logger.Error("error executing commit of transaction")
+		return err
+	}
+
+	return err
 }
 
 // load ...
