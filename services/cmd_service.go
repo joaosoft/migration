@@ -266,19 +266,22 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 		if option == OptionUp {
 			if err == nil {
 				if err = service.interactor.CreateMigration(&Migration{IdMigration: migration}); err != nil {
-					return 0, service.logger.Error("error adding migration to database").ToError()
+					service.logger.Error("error adding migration to database")
+					return 0, err
 				}
 			}
 		} else {
 			if err == nil {
 				if err = service.interactor.DeleteMigration(migration); err != nil {
-					return 0, service.logger.Error("error deleting migration to database").ToError()
+					service.logger.Error("error deleting migration to database")
+					return 0, err
 				}
 			}
 		}
 
 		if err != nil {
-			return 0, service.logger.Errorf("error executing the migration %s", migration).ToError()
+			service.logger.Errorf("error executing the migration %s", migration)
+			return 0, err
 		}
 	}
 	service.logger.Infof("applied %d migrations!", len(migrations))
