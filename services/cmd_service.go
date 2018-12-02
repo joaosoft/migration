@@ -51,7 +51,7 @@ func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 
 	service.Reconfigure(options...)
 
-	simpleDB := manager.NewSimpleDB(&appConfig.Migration.Db)
+	simpleDB := manager.NewSimpleDB(&service.config.Db)
 	if err := service.pm.AddDB("db_postgres", simpleDB); err != nil {
 		service.logger.Error(err.Error())
 		return nil, err
