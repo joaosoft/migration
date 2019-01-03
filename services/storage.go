@@ -38,7 +38,7 @@ func (storage *StoragePostgres) GetMigration(idMigration string) (*Migration, er
 		&migration.ExecutedAt); err != nil {
 
 		if err != sql.ErrNoRows {
-			return nil, errors.New("0", err)
+			return nil, errors.New(errors.ErrorLevel, 0, err)
 		}
 
 		return nil, nil
@@ -77,7 +77,7 @@ func (storage *StoragePostgres) GetMigrations(values map[string][]string) (ListM
 
 	rows, err := storage.conn.Get().Query(query, params...)
 	if err != nil {
-		return nil, errors.New("0", err)
+		return nil, errors.New(errors.ErrorLevel, 0, err)
 	}
 
 	defer rows.Close()
@@ -91,7 +91,7 @@ func (storage *StoragePostgres) GetMigrations(values map[string][]string) (ListM
 			&migration.ExecutedAt); err != nil {
 
 			if err != sql.ErrNoRows {
-				return nil, errors.New("0", err)
+				return nil, errors.New(errors.ErrorLevel, 0, err)
 			}
 			return nil, nil
 		}
@@ -108,7 +108,7 @@ func (storage *StoragePostgres) CreateMigration(newMigration *Migration) error {
 		VALUES($1)
 	`,
 		newMigration.IdMigration); err != nil {
-		return errors.New("0", err)
+		return errors.New(errors.ErrorLevel, 0, err)
 	}
 
 	return nil
@@ -120,7 +120,7 @@ func (storage *StoragePostgres) DeleteMigration(idMigration string) error {
 		FROM migration
 		WHERE id_migration = $1
 	`, idMigration); err != nil {
-		return errors.New("0", err)
+		return errors.New(errors.ErrorLevel, 0, err)
 	}
 
 	return nil
@@ -129,7 +129,7 @@ func (storage *StoragePostgres) DeleteMigration(idMigration string) error {
 func (storage *StoragePostgres) DeleteMigrations() error {
 	if _, err := storage.conn.Get().Exec(`
 	    DELETE FROM migration`); err != nil {
-		return errors.New("0", err)
+		return errors.New(errors.ErrorLevel, 0, err)
 	}
 
 	return nil
@@ -137,7 +137,7 @@ func (storage *StoragePostgres) DeleteMigrations() error {
 
 func (storage *StoragePostgres) ExecuteMigration(migration string) error {
 	if _, err := storage.conn.Get().Exec(migration); err != nil {
-		return errors.New("0", err)
+		return errors.New(errors.ErrorLevel, 0, err)
 	}
 
 	return nil
