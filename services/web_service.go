@@ -31,14 +31,14 @@ func NewWebService(options ...WebServiceOption) (*WebService, error) {
 	appConfig := &AppConfig{}
 	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
 		service.logger.Error(err.Error())
-	} else {
+	} else if appConfig.Migration != nil {
 		service.pm.AddConfig("config_app", simpleConfig)
 		level, _ := logger.ParseLevel(appConfig.Migration.Log.Level)
 		service.logger.Debugf("setting log level to %s", level)
 		service.logger.Reconfigure(logger.WithLevel(level))
 	}
 
-	service.config = &appConfig.Migration
+	service.config = appConfig.Migration
 
 	service.Reconfigure(options...)
 
