@@ -91,6 +91,18 @@ github.com/konsorten/go-windows-terminal-sequences:
 github.com/kr/fs:
   branch: main
   revision: 1455def202f6e05b95cc7bfc7e8ae67ae5141eba
+github.com/kr/pretty:
+  branch: main
+  revision: 73f6ac0b30a98e433b289500d779f50c1a6f0712
+github.com/kr/pty:
+  branch: master
+  revision: db8e3cd836b82e82e0a9c8edc6896967dd31374f
+github.com/kr/text:
+  branch: main
+  revision: e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f
+github.com/kr/text/colwriter:
+  branch: main
+  revision: e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f
 github.com/labstack/echo:
   branch: master
   revision: 7867fce6ce3e8da711e49256e14410ca46d7ecc0
@@ -106,6 +118,12 @@ github.com/labstack/gommon/log:
 github.com/labstack/gommon/random:
   branch: master
   revision: 34167a09256a4fcb5d26dd88d02b7b353d86838a
+github.com/lib/pq:
+  branch: master
+  revision: 4ded0e9383f75c197b3a2aaa6d590ac52df6fd79
+github.com/lib/pq/oid:
+  branch: master
+  revision: 4ded0e9383f75c197b3a2aaa6d590ac52df6fd79
 github.com/magiconair/properties:
   branch: master
   revision: 7757cc9fdb852f7579b24170bcacda2c7471bb6a
@@ -349,3 +367,9 @@ golang.org/x/tools/internal/semver:
 golang.org/x/tools/internal/tool:
   branch: master
   revision: c3e15677277459a71545fa40c982ca9e4562801e
+gopkg.in/check.v1:
+  branch: v1
+  revision: 788fd78401277ebd861206a03c884797c6ec5541
+gopkg.in/yaml.v2:
+  branch: master
+  revision: 51d6538a90f86fe93ac480b35f37b2be17fef232

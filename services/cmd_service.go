@@ -30,6 +30,7 @@ func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 			string(FileTagMigrateUp):   MigrationHandler,
 			string(FileTagMigrateDown): MigrationHandler,
 		},
+		config: &MigrationConfig{},
 	}
 
 	if service.isLogExternal {
@@ -45,9 +46,8 @@ func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 		level, _ := logger.ParseLevel(appConfig.Migration.Log.Level)
 		service.logger.Debugf("setting log level to %s", level)
 		service.logger.Reconfigure(logger.WithLevel(level))
+		service.config = appConfig.Migration
 	}
-
-	service.config = appConfig.Migration
 
 	service.Reconfigure(options...)
 
