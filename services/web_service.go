@@ -39,13 +39,13 @@ func NewWebService(options ...WebServiceOption) (*WebService, error) {
 
 	service.Reconfigure(options...)
 
-	simpleDB := manager.NewSimpleDB(&config.Migration.Db)
+	simpleDB := service.pm.NewSimpleDB(&config.Migration.Db)
 	if err := service.pm.AddDB("db_postgres", simpleDB); err != nil {
 		service.logger.Error(err.Error())
 		return nil, err
 	}
 
-	web := manager.NewSimpleWebEcho(service.config.Host)
+	web := service.pm.NewSimpleWebEcho(service.config.Host)
 	controller := NewController(service.logger, NewInteractor(service.logger, NewStoragePostgres(service.logger, simpleDB)))
 	controller.RegisterRoutes(web)
 
