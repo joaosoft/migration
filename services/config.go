@@ -3,8 +3,8 @@ package services
 import (
 	"fmt"
 
-	"github.com/joaosoft/manager"
 	"github.com/joaosoft/logger"
+	"github.com/joaosoft/manager"
 )
 
 // AppConfig ...
@@ -23,13 +23,13 @@ type MigrationConfig struct {
 }
 
 // NewConfig ...
-func NewConfig(host string, db manager.DBConfig) *MigrationConfig {
+func NewConfig() (*MigrationConfig, error) {
 	appConfig := &AppConfig{}
 	if _, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
 		logger.Error(err.Error())
+
+		return &MigrationConfig{}, err
 	}
 
-	appConfig.Migration.Host = host
-
-	return appConfig.Migration
+	return appConfig.Migration, nil
 }
