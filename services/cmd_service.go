@@ -23,6 +23,8 @@ type CmdService struct {
 }
 
 func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
+	config, simpleConfig, err := NewConfig()
+
 	service := &CmdService{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
 		logger: logger.NewLogDefault("migration", logger.InfoLevel),
@@ -37,21 +39,18 @@ func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 		service.pm.Reconfigure(manager.WithLogger(service.logger))
 	}
 
-	// load configuration File
-	appConfig := &AppConfig{}
-	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
+	if err != nil {
 		service.logger.Error(err.Error())
-	} else if appConfig.Migration != nil {
+	} else {
 		service.pm.AddConfig("config_app", simpleConfig)
-		level, _ := logger.ParseLevel(appConfig.Migration.Log.Level)
+		level, _ := logger.ParseLevel(config.Migration.Log.Level)
 		service.logger.Debugf("setting log level to %s", level)
 		service.logger.Reconfigure(logger.WithLevel(level))
-		service.config = appConfig.Migration
 	}
 
 	service.Reconfigure(options...)
 
-	simpleDB := manager.NewSimpleDB(&service.config.Db)
+	simpleDB := service.pm.NewSimpleDB(&service.config.Db)
 	if err := service.pm.AddDB("db_postgres", simpleDB); err != nil {
 		service.logger.Error(err.Error())
 		return nil, err
