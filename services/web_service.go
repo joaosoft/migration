@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/joaosoft/logger"
@@ -18,35 +17,29 @@ type WebService struct {
 
 // NewWebService ...
 func NewWebService(options ...WebServiceOption) (*WebService, error) {
+	config, simpleConfig, err := NewConfig()
 	service := &WebService{
 		pm:     manager.NewManager(manager.WithRunInBackground(false)),
 		logger: logger.NewLogDefault("migration", logger.InfoLevel),
-		config: &MigrationConfig{},
+		config: &config.Migration,
 	}
 
 	if service.isLogExternal {
 		service.pm.Reconfigure(manager.WithLogger(service.logger))
 	}
 
-	// load configuration File
-	appConfig := &AppConfig{}
-	if simpleConfig, err := manager.NewSimpleConfig(fmt.Sprintf("/config/app.%s.json", GetEnv()), appConfig); err != nil {
+	if err != nil {
 		service.logger.Error(err.Error())
-	} else if appConfig.Migration != nil {
+	} else {
 		service.pm.AddConfig("config_app", simpleConfig)
-		level, _ := logger.ParseLevel(appConfig.Migration.Log.Level)
+		level, _ := logger.ParseLevel(config.Migration.Log.Level)
 		service.logger.Debugf("setting log level to %s", level)
 		service.logger.Reconfigure(logger.WithLevel(level))
-		service.config = appConfig.Migration
 	}
 
 	service.Reconfigure(options...)
 
-	if service.config.Host == "" {
-		service.config.Host = DefaultURL
-	}
-
-	simpleDB := manager.NewSimpleDB(&appConfig.Migration.Db)
+	simpleDB := manager.NewSimpleDB(&config.Migration.Db)
 	if err := service.pm.AddDB("db_postgres", simpleDB); err != nil {
 		service.logger.Error(err.Error())
 		return nil, err
