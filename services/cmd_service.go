@@ -32,7 +32,7 @@ func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 			string(FileTagMigrateUp):   MigrationHandler,
 			string(FileTagMigrateDown): MigrationHandler,
 		},
-		config: &MigrationConfig{},
+		config: config.Migration,
 	}
 
 	if service.isLogExternal {
@@ -41,11 +41,15 @@ func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 
 	if err != nil {
 		service.logger.Error(err.Error())
-	} else {
+	} else if config.Migration != nil {
 		service.pm.AddConfig("config_app", simpleConfig)
 		level, _ := logger.ParseLevel(config.Migration.Log.Level)
 		service.logger.Debugf("setting log level to %s", level)
 		service.logger.Reconfigure(logger.WithLevel(level))
+	} else {
+		config.Migration = &MigrationConfig{
+			Host: DefaultURL,
+		}
 	}
 
 	service.Reconfigure(options...)

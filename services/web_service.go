@@ -21,7 +21,7 @@ func NewWebService(options ...WebServiceOption) (*WebService, error) {
 	service := &WebService{
 		pm:     manager.NewManager(manager.WithRunInBackground(false)),
 		logger: logger.NewLogDefault("migration", logger.WarnLevel),
-		config: &config.Migration,
+		config: config.Migration,
 	}
 
 	if service.isLogExternal {
@@ -30,11 +30,15 @@ func NewWebService(options ...WebServiceOption) (*WebService, error) {
 
 	if err != nil {
 		service.logger.Error(err.Error())
-	} else {
+	} else if config.Migration != nil {
 		service.pm.AddConfig("config_app", simpleConfig)
 		level, _ := logger.ParseLevel(config.Migration.Log.Level)
 		service.logger.Debugf("setting log level to %s", level)
 		service.logger.Reconfigure(logger.WithLevel(level))
+	} else {
+		config.Migration = &MigrationConfig{
+			Host: DefaultURL,
+		}
 	}
 
 	service.Reconfigure(options...)
