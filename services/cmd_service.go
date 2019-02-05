@@ -253,15 +253,22 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 			}
 		}
 
-		if option == OptionUp {
+		if err = tx.Commit(); err != nil {
+			service.logger.Error("error executing commit of transaction")
+			return 0, err
+		}
+
+		switch option {
+		case OptionUp:
 			if err == nil {
 				if err = service.interactor.CreateMigration(&Migration{IdMigration: migration}); err != nil {
 					service.logger.Error("error adding migration to database")
+					service.interactor.DeleteMigration(migration)
 					tx.Rollback()
 					return 0, err
 				}
 			}
-		} else {
+		default:
 			if err == nil {
 				if err = service.interactor.DeleteMigration(migration); err != nil {
 					service.logger.Error("error deleting migration to database")
@@ -274,11 +281,6 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 		if err != nil {
 			service.logger.Errorf("error executing the migration %s", migration)
 			tx.Rollback()
-			return 0, err
-		}
-
-		if err = tx.Commit(); err != nil {
-			service.logger.Error("error executing commit of transaction")
 			return 0, err
 		}
 	}
