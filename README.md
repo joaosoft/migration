@@ -8,7 +8,10 @@ A simple database migration tool to integrate in your projects
 ## With support for
 * Migration Up and Down options
 * Custom Tags with handler to Up and Down options
-* Postgres
+
+## Mode's
+* Database ```-mode database```
+* Rabbitmq ```-mode rabbitmq```
 
 ## Dependecy Management 
 >### Dep
@@ -28,7 +31,7 @@ This examples are available in the project at [migration/main/cmd/main.go](https
 > Migration commands
 ```
 // migrate up all migrations
-migration -migrate up
+migration -migrate up -mode database
 
 // migrate up 2 migrations
 migration -migrate up -number 2

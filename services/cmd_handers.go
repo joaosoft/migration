@@ -1,9 +1,7 @@
 package services
 
-import "database/sql"
-
-func MigrationHandler(option MigrationOption, tx *sql.Tx, data string) error {
-	_, err := tx.Exec(data)
+func MigrationHandler(option MigrationOption, conn Executor, data string) error {
+	err := conn.Execute(data)
 
 	return err
 }

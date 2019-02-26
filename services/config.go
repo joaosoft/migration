@@ -13,10 +13,16 @@ type AppConfig struct {
 
 // MigrationConfig ...
 type MigrationConfig struct {
-	Host string           `json:"host"`
-	Path string           `json:"path"`
-	Db   manager.DBConfig `json:"db"`
-	Log  struct {
+	Host string `json:"host"`
+	Path struct {
+		Database string `json:"database"`
+		Rabbitmq string `json:"rabbitmq"`
+	} `json:"path"`
+	Db       manager.DBConfig `json:"db"`
+	RabbitMq *struct {
+		Host string `json:"host"`
+	} `json:"rabbitmq"`
+	Log struct {
 		Level string `json:"level"`
 	} `json:"log"`
 }

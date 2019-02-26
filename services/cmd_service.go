@@ -83,7 +83,7 @@ func (service *CmdService) AddTag(name string, handler Handler) error {
 }
 
 // execute ...
-func (service *CmdService) Execute(option MigrationOption, number int) (int, error) {
+func (service *CmdService) Execute(option MigrationOption, number int, mode ExecutorMode) (int, error) {
 	service.logger.Infof("executing migration with option '-%s %s'", CmdMigrate, option)
 
 	// setup
@@ -92,7 +92,7 @@ func (service *CmdService) Execute(option MigrationOption, number int) (int, err
 	}
 
 	// load
-	executed, toexecute, err := service.load()
+	executed, toexecute, err := service.load(mode)
 	if err != nil {
 		return 0, err
 	}
@@ -103,7 +103,7 @@ func (service *CmdService) Execute(option MigrationOption, number int) (int, err
 	}
 
 	// process
-	return service.process(option, number, executed, toexecute)
+	return service.process(option, number, mode, executed, toexecute)
 }
 
 // setup ...
@@ -121,7 +121,9 @@ func (service *CmdService) setup() error {
 		return err
 	}
 
-	service.tag[string(FileTagMigrateUp)](OptionUp, tx, CREATE_MIGRATION_TABLES)
+	if _, err := tx.Exec(CREATE_MIGRATION_TABLES); err != nil {
+		service.logger.Error("error creating migration table")
+	}
 
 	if err = tx.Commit(); err != nil {
 		service.logger.Error("error executing commit of transaction")
@@ -132,10 +134,10 @@ func (service *CmdService) setup() error {
 }
 
 // load ...
-func (service *CmdService) load() (executed []string, toexecute []string, err error) {
+func (service *CmdService) load(mode ExecutorMode) (executed []string, toexecute []string, err error) {
 
 	// executed
-	migrations, er := service.interactor.GetMigrations(nil)
+	migrations, er := service.interactor.GetMigrations(map[string][]string{"mode": []string{string(mode)}})
 	if er != nil {
 		return nil, nil, service.logger.Error("error loading migrations from database").ToError()
 	}
@@ -145,7 +147,8 @@ func (service *CmdService) load() (executed []string, toexecute []string, err er
 
 	// to execute
 	dir, _ := os.Getwd()
-	files, err := filepath.Glob(fmt.Sprintf("%s/%s/*.sql", dir, service.config.Path))
+
+	files, err := filepath.Glob(fmt.Sprintf("%s/%s/*", dir, service.getPath(mode)))
 	if err != nil {
 		return executed, nil, service.logger.Error("error loading migrations from file system").ToError()
 	}
@@ -168,7 +171,7 @@ func (service *CmdService) validate(executed []string, toexecute []string) (err 
 }
 
 // process ...
-func (service *CmdService) process(option MigrationOption, number int, executed []string, toexecute []string) (int, error) {
+func (service *CmdService) process(option MigrationOption, number int, mode ExecutorMode, executed []string, toexecute []string) (int, error) {
 	var migrations []string
 
 	if option == OptionUp {
@@ -216,30 +219,31 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 		}
 	}
 
+	executor := NewExecutor(service, mode)
+	if err := executor.Open(); err != nil {
+		service.logger.Error("error connecting executor")
+		return 0, err
+	}
+
+	defer executor.Close()
+
 	// log migration information
 	service.logger.Infof("migrations already executed %+v", executed)
 	service.logger.Infof("migrations to execute %+v", migrations)
 
 	for _, migration := range migrations {
-		migrationTags, customTags, err := service.loadRunningTags(option, migration)
+		migrationTags, customTags, err := service.loadRunningTags(option, mode, migration)
 		if err != nil {
 			return 0, err
 		}
 
-		conn, err := service.config.Db.Connect()
-		if err != nil {
-			return 0, err
-		}
-		defer conn.Close()
-
-		tx, err := conn.Begin()
-		if err != nil {
+		if err = executor.Begin(); err != nil {
 			return 0, err
 		}
 
 		// execute migration handlers
 		for key, value := range migrationTags {
-			if err = service.tag[key](option, tx, value); err != nil {
+			if err = service.tag[key](option, executor, value); err != nil {
 				break
 			}
 		}
@@ -247,24 +251,26 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 		if err == nil {
 			// execute custom handlers
 			for key, value := range customTags {
-				if err = service.tag[key](option, tx, value); err != nil {
+				if err = service.tag[key](option, executor, value); err != nil {
 					break
 				}
 			}
 		}
 
-		if err = tx.Commit(); err != nil {
-			service.logger.Error("error executing commit of transaction")
-			return 0, err
+		if err == nil {
+			if err = executor.Commit(); err != nil {
+				service.logger.Error("error executing commit of transaction")
+				return 0, err
+			}
 		}
 
 		switch option {
 		case OptionUp:
 			if err == nil {
-				if err = service.interactor.CreateMigration(&Migration{IdMigration: migration}); err != nil {
+				if err = service.interactor.CreateMigration(&Migration{IdMigration: migration, Mode: mode}); err != nil {
 					service.logger.Error("error adding migration to database")
 					service.interactor.DeleteMigration(migration)
-					tx.Rollback()
+					executor.Rollback()
 					return 0, err
 				}
 			}
@@ -272,7 +278,7 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 			if err == nil {
 				if err = service.interactor.DeleteMigration(migration); err != nil {
 					service.logger.Error("error deleting migration to database")
-					tx.Rollback()
+					executor.Rollback()
 					return 0, err
 				}
 			}
@@ -280,7 +286,7 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 
 		if err != nil {
 			service.logger.Errorf("error executing the migration %s", migration)
-			tx.Rollback()
+			executor.Rollback()
 			return 0, err
 		}
 	}
@@ -289,9 +295,9 @@ func (service *CmdService) process(option MigrationOption, number int, executed 
 	return len(migrations), nil
 }
 
-func (service *CmdService) loadRunningTags(option MigrationOption, file string) (migrationTags map[string]string, customTags map[string]string, err error) {
+func (service *CmdService) loadRunningTags(option MigrationOption, mode ExecutorMode, file string) (migrationTags map[string]string, customTags map[string]string, err error) {
 	dir, _ := os.Getwd()
-	lines, err := ReadFileLines(fmt.Sprintf("%s/%s/%s", dir, service.config.Path, file))
+	lines, err := ReadFileLines(fmt.Sprintf("%s/%s/%s", dir, service.getPath(mode), file))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -337,4 +343,15 @@ func (m *CmdService) Start() error {
 // Stop ...
 func (m *CmdService) Stop() error {
 	return m.pm.Stop()
+}
+
+func (m *CmdService) getPath(mode ExecutorMode) string {
+	switch mode {
+	case ExecutorModeDatabase:
+		return m.config.Path.Database
+	case ExecutorModeRabbitMq:
+		return m.config.Path.Rabbitmq
+	}
+
+	return ""
 }

@@ -3,6 +3,7 @@ package services
 const (
 	CmdMigrate MigrationCommand = "migrate"
 	CmdNumber  MigrationCommand = "number"
+	CmdMode    MigrationCommand = "mode"
 
 	OptionUp   MigrationOption = "up"
 	OptionDown MigrationOption = "down"

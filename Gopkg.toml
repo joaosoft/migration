@@ -45,6 +45,10 @@
   name = "github.com/labstack/echo"
   version = "3.3.10"
 
+[[override]]
+  name = "github.com/satori/go.uuid"
+  branch = "master"
+
 [prune]
   go-tests = true
   unused-packages = true

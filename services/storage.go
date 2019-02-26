@@ -25,6 +25,7 @@ func NewStoragePostgres(logger logger.ILogger, connection manager.IDB) *StorageP
 func (storage *StoragePostgres) GetMigration(idMigration string) (*Migration, error) {
 	row := storage.conn.Get().QueryRow(`
 	    SELECT
+	    	mode,
 		    "user",
 			executed_at
 		FROM migration
@@ -34,6 +35,7 @@ func (storage *StoragePostgres) GetMigration(idMigration string) (*Migration, er
 
 	migration := &Migration{IdMigration: idMigration}
 	if err := row.Scan(
+		&migration.Mode,
 		&migration.User,
 		&migration.ExecutedAt); err != nil {
 
@@ -51,6 +53,7 @@ func (storage *StoragePostgres) GetMigrations(values map[string][]string) (ListM
 	query := `
 	    SELECT
 			id_migration,
+			mode,
 		    "user",
 			executed_at
 		FROM migration
@@ -87,6 +90,7 @@ func (storage *StoragePostgres) GetMigrations(values map[string][]string) (ListM
 		migration := &Migration{}
 		if err := rows.Scan(
 			&migration.IdMigration,
+			&migration.Mode,
 			&migration.User,
 			&migration.ExecutedAt); err != nil {
 
@@ -104,10 +108,11 @@ func (storage *StoragePostgres) GetMigrations(values map[string][]string) (ListM
 func (storage *StoragePostgres) CreateMigration(newMigration *Migration) error {
 	if _, err := storage.conn.Get().Exec(`
 		INSERT INTO migration(
-			id_migration)
-		VALUES($1)
+			id_migration,
+			mode)
+		VALUES($1, $2)
 	`,
-		newMigration.IdMigration); err != nil {
+		newMigration.IdMigration, newMigration.Mode); err != nil {
 		return errors.New(errors.ErrorLevel, 0, err)
 	}
 

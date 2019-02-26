@@ -1,10 +1,16 @@
 {
   "migration": {
     "host": "localhost:8001",
-    "path": "/",
+    "path": {
+      "database": "schema/db/postgres/example",
+      "rabbitmq": "schema/rabbitmq/example"
+    },
     "db": {
       "driver": "postgres",
-      "datasource": "postgres://user:password@localhost:5432?sslmode=disable&search_path=public"
+      "datasource": "postgres://user:password@localhost:7000/postgres?sslmode=disable"
+    },
+    "rabbitmq": {
+      "host": "localhost:15672"
     },
     "log": {
       "level": "info"
@@ -12,7 +18,7 @@
   },
   "manager": {
     "log": {
-      "level": "error"
+      "level": "info"
     }
   }
 }
