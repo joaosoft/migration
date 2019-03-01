@@ -94,10 +94,16 @@ func CustomHandler(option cmd.MigrationOption, tx *sql.Tx, data string) error {
 {
   "migration": {
     "host": "localhost:8001",
-    "path": "schema/db/postgres/example",
+    "path": {
+      "database": "schema/db/postgres/example",
+      "rabbitmq": "schema/rabbitmq/example"
+    },
     "db": {
       "driver": "postgres",
-      "datasource": "postgres://postgres:postgres@localhost:5432?sslmode=disable"
+      "datasource": "postgres://user:password@localhost:7000/postgres?sslmode=disable"
+    },
+    "rabbitmq": {
+      "host": "localhost:15672"
     },
     "log": {
       "level": "info"
@@ -105,7 +111,12 @@ func CustomHandler(option cmd.MigrationOption, tx *sql.Tx, data string) error {
   },
   "manager": {
     "log": {
-      "level": "error"
+      "level": "info"
+    }
+  },
+  "client": {
+    "log": {
+      "level": "info"
     }
   }
 }
