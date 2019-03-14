@@ -162,6 +162,11 @@ func (service *CmdService) load(mode ExecutorMode) (executed []string, toexecute
 
 // validate ...
 func (service *CmdService) validate(executed []string, toexecute []string) (err error) {
+
+	if len(executed) > len(toexecute) {
+		return service.logger.Errorf("error, the migration number is different [executed: %d] <-> [to execute: %d]", len(executed), len(toexecute)).ToError()
+	}
+
 	for i, migration := range executed {
 		if migration != toexecute[i] {
 			return service.logger.Errorf("error, the migrations are in a different order of the already executed migrations [%s] <-> [%s]", migration, toexecute[i]).ToError()
