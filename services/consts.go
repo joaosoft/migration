@@ -4,12 +4,13 @@ const (
 	DefaultURL = "http://localhost:8001"
 
 	CREATE_MIGRATION_TABLES = `
-DO $$
+DO $$ 
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'mode') THEN
+    PERFORM (current_schema()||'.mode')::regtype;
+EXCEPTION
+    WHEN undefined_object THEN
         CREATE TYPE mode AS ENUM ('database', 'rabbitmq');
-    END IF;
-END$$;
+END $$;
 
 CREATE TABLE IF NOT EXISTS migration (
   id_migration      TEXT NOT NULL,
