@@ -20,7 +20,8 @@ type MigrationConfig struct {
 	} `json:"path"`
 	Db       manager.DBConfig `json:"db"`
 	RabbitMq *struct {
-		Host string `json:"host"`
+		Host  string  `json:"host"`
+		VHost *string `json:"vhost"`
 	} `json:"rabbitmq"`
 	Log struct {
 		Level string `json:"level"`

@@ -10,7 +10,8 @@
       "datasource": "postgres://user:password@localhost:7000/postgres?sslmode=disable"
     },
     "rabbitmq": {
-      "host": "localhost:15672"
+      "host": "localhost:15672",
+      "vhost": "dev"
     },
     "log": {
       "level": "info"

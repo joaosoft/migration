@@ -2,7 +2,6 @@ package services
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/joaosoft/errors"
 
@@ -40,7 +39,13 @@ func (e *ExecutorRabbitMq) Rollback() error {
 }
 
 func (e *ExecutorRabbitMq) Execute(arg interface{}, args ...interface{}) error {
-	request, err := e.client.NewRequest(web.MethodPost, fmt.Sprintf("%s/api/definitions", e.service.config.RabbitMq.Host))
+	url := fmt.Sprintf("%s/api/definitions", e.service.config.RabbitMq.Host)
+
+	if e.service.config.RabbitMq.VHost != nil {
+		url += fmt.Sprintf("/%s", *e.service.config.RabbitMq.VHost)
+	}
+
+	request, err := e.client.NewRequest(web.MethodPost, url)
 	if err != nil {
 		return err
 	}
@@ -51,12 +56,6 @@ func (e *ExecutorRabbitMq) Execute(arg interface{}, args ...interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s/api/definitions", e.service.config.RabbitMq.Host), nil)
-	req.Header.Add("Authorization", `Basic Zm91cnNvdXJjZTpmNHMwdTQ1ZQ==`)
-	resp, err := client.Do(req)
-	fmt.Println(resp)
 
 	if response.Status >= web.StatusBadRequest {
 		return errors.New(errors.ErrorLevel, 0, "error importing configurations to rabbitmq [status: %d, error: %s]", response.Status, string(response.Body))
