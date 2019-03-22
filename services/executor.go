@@ -3,6 +3,7 @@ package services
 type ExecutorMode string
 
 const (
+	ExecutorModeAll      ExecutorMode = "all"
 	ExecutorModeDatabase ExecutorMode = "database"
 	ExecutorModeRabbitMq ExecutorMode = "rabbitmq"
 )
