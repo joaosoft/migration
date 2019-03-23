@@ -116,8 +116,9 @@ func CustomHandler(option services.MigrationOption, conn services.Executor, data
       "rabbitmq": "schema/rabbitmq/example"
     },
     "db": {
+      "schema": "migration",
       "driver": "postgres",
-      "datasource": "postgres://user:password@localhost:7000/postgres?sslmode=disable"
+      "datasource": "postgres://user:password@localhost:7000/postgres?sslmode=disable&search_path=migration"
     },
     "rabbitmq": {
       "host": "localhost:15672",
