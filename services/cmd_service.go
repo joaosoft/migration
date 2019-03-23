@@ -54,7 +54,7 @@ func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 
 	service.Reconfigure(options...)
 
-	simpleDB := service.pm.NewSimpleDB(&service.config.Db)
+	simpleDB := service.pm.NewSimpleDB(&service.config.Db.DBConfig)
 	if err := service.pm.AddDB("db_postgres", simpleDB); err != nil {
 		service.logger.Error(err.Error())
 		return nil, err
@@ -121,7 +121,7 @@ func (service *CmdService) setup() error {
 		return err
 	}
 
-	if _, err := tx.Exec(CREATE_MIGRATION_TABLES); err != nil {
+	if _, err := tx.Exec(fmt.Sprintf(CREATE_MIGRATION_TABLES, service.config.Db.Schema)); err != nil {
 		service.logger.Error("error creating migration table")
 	}
 

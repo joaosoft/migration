@@ -11,6 +11,11 @@ type AppConfig struct {
 	Migration *MigrationConfig `json:"migration"`
 }
 
+type DBConfig struct {
+	manager.DBConfig
+	Schema string `json:"schema"`
+}
+
 // MigrationConfig ...
 type MigrationConfig struct {
 	Host string `json:"host"`
@@ -18,7 +23,7 @@ type MigrationConfig struct {
 		Database string `json:"database"`
 		Rabbitmq string `json:"rabbitmq"`
 	} `json:"path"`
-	Db       manager.DBConfig `json:"db"`
+	Db       *DBConfig `json:"db"`
 	RabbitMq *struct {
 		Host  string  `json:"host"`
 		VHost *string `json:"vhost"`

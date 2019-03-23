@@ -43,7 +43,7 @@ func NewWebService(options ...WebServiceOption) (*WebService, error) {
 
 	service.Reconfigure(options...)
 
-	simpleDB := service.pm.NewSimpleDB(&config.Migration.Db)
+	simpleDB := service.pm.NewSimpleDB(&config.Migration.Db.DBConfig)
 	if err := service.pm.AddDB("db_postgres", simpleDB); err != nil {
 		service.logger.Error(err.Error())
 		return nil, err
