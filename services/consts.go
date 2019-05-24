@@ -4,12 +4,12 @@ const (
 	DefaultURL = "http://localhost:8001"
 
 	CREATE_MIGRATION_TABLES = `
-CREATE SCHEMA IF NOT EXISTS %s;
+CREATE SCHEMA IF NOT EXISTS "%s";
 
 
 DO $$ 
 BEGIN
-    PERFORM (current_schema()||'.mode')::regtype;
+    PERFORM ('"'||current_schema()||'"'||'.mode')::regtype;
 EXCEPTION
     WHEN undefined_object THEN
         CREATE TYPE mode AS ENUM ('database', 'rabbitmq');
