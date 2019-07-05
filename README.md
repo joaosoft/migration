@@ -10,7 +10,7 @@ A simple database migration tool to integrate in your projects
 * Custom Tags with handler to Up and Down options
 
 ## Mode's
-* Database ```-mode all``` (default)
+* Database and Rabbitmq ```-mode all``` (default)
 * Database ```-mode database```
 * Rabbitmq ```-mode rabbitmq```
 
