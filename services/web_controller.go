@@ -58,7 +58,7 @@ func (controller *Controller) CreateMigrationHandler(ctx echo.Context) error {
 	}
 
 	if errs := validator.Validate(request.Body); len(errs) > 0 {
-		newErr := errors.New(LevelError, 0, errs)
+		newErr := errors.New(errors.LevelError, 0, errs)
 		controller.logger.WithFields(map[string]interface{}{"error": newErr.Error(), "cause": newErr.Cause()}).
 			Error("error when validating body request").ToError()
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{Code: http.StatusBadRequest, Message: newErr.Error(), Cause: newErr.Cause()})
