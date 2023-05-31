@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func New(level Level, code int, err interface{}, params ...interface{}) *Error {
+func New(level Level, code interface{}, err interface{}, params ...interface{}) *Error {
 
 	var message string
 	switch v := err.(type) {
@@ -67,4 +67,14 @@ func Add(err *Error) *Error {
 		Message: err.Message,
 		Stack:   stack,
 	}
+}
+
+func AddList(errs ...*Error) *ErrorList {
+	errorList := &ErrorList{}
+
+	for _, err := range errs {
+		errorList.Add(err)
+	}
+
+	return errorList
 }
