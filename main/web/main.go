@@ -1,7 +1,7 @@
 package main
 
 import (
-	"migration/services"
+	"github.com/joaosoft/migration/services"
 )
 
 func main() {
