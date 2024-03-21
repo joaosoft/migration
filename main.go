@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"migration/services"
+	"github.com/joaosoft/migration/services"
 	"os"
 )
 

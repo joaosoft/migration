@@ -1,9 +1,9 @@
 module github.com/joaosoft/migration
 
-go 1.20
+go 1.21.1
 
 require (
-	github.com/joaosoft/errors v0.0.0-20230531141818-ebb38600b462
+	github.com/joaosoft/errors v0.0.0-20240319133954-3c79b56bd58e
 	github.com/joaosoft/logger v0.0.0-20240321164508-fe379344de3b
 	github.com/joaosoft/manager v0.0.0-20240321165944-b6d538f40dde
 	github.com/joaosoft/validator v0.0.0-20240321172251-46ca32f7b770
