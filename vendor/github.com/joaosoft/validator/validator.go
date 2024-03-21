@@ -5,12 +5,11 @@ import (
 )
 
 func NewValidator() *Validator {
-
 	v := &Validator{
 		tag:       constDefaultValidationTag,
 		callbacks: make(map[string]callbackHandler),
 		sanitize:  make([]string, 0),
-		logger:    logger.NewLogDefault(constDefaultLogTag, logger.InfoLevel),
+		logger:    logger.NewLogDefault(constDefaultLogTag, logger.LevelInfo),
 	}
 
 	v.init()
@@ -75,8 +74,8 @@ func (v *Validator) SetTag(tag string) *Validator {
 	return v
 }
 
-func (v *Validator) SetPwdSettings(settings *PwdSettings) *Validator {
-	v.pwd.settings = settings
+func (v *Validator) SetPasswordSettings(settings *PasswordSettings) *Validator {
+	v.password.settings = settings
 
 	return v
 }

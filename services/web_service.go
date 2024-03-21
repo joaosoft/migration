@@ -20,7 +20,7 @@ func NewWebService(options ...WebServiceOption) (*WebService, error) {
 	config, simpleConfig, err := NewConfig()
 	service := &WebService{
 		pm:     manager.NewManager(manager.WithRunInBackground(false)),
-		logger: logger.NewLogDefault("migration", logger.WarnLevel),
+		logger: logger.NewLogDefault("migration", logger.LevelWarn),
 		config: config.Migration,
 	}
 

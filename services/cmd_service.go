@@ -27,7 +27,7 @@ func NewCmdService(options ...CmdServiceOption) (*CmdService, error) {
 
 	service := &CmdService{
 		pm:     manager.NewManager(manager.WithRunInBackground(true)),
-		logger: logger.NewLogDefault("migration", logger.WarnLevel),
+		logger: logger.NewLogDefault("migration", logger.LevelWarn),
 		tag: map[string]Handler{
 			string(FileTagMigrateUp):   MigrationHandler,
 			string(FileTagMigrateDown): MigrationHandler,

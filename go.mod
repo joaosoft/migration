@@ -4,10 +4,10 @@ go 1.20
 
 require (
 	github.com/joaosoft/errors v0.0.0-20230531141818-ebb38600b462
-	github.com/joaosoft/logger v0.0.0-20230531142923-753c0a3e836a
-	github.com/joaosoft/manager v0.0.0-20230531143904-428f1ea704a2
-	github.com/joaosoft/validator v0.0.0-20230531142908-28a5b2f72266
-	github.com/joaosoft/web v0.0.0-20230531143830-cd31d8a8c35e
+	github.com/joaosoft/logger v0.0.0-20240321164508-fe379344de3b
+	github.com/joaosoft/manager v0.0.0-20240321165944-b6d538f40dde
+	github.com/joaosoft/validator v0.0.0-20240321172251-46ca32f7b770
+	github.com/joaosoft/web v0.0.0-20240321165800-ab860bfd0ff2
 	github.com/labstack/echo v3.3.10+incompatible
 )
 
